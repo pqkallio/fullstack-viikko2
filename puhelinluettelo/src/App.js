@@ -2,37 +2,26 @@ import React from 'react';
 import Entries from './components/Entries'
 import NewEntryForm from './components/NewEntryForm';
 import Filtering from './components/Filtering';
+import axios from 'axios'
 
 class App extends React.Component {
     constructor(props) {
         super(props)
+        this.db = props.db
         this.state = {
-        persons: [
-            {
-                name: 'Arto Hellas',
-                number: '12345',
-                id: 1
-            },
-            {
-                name: 'Arto Ananas',
-                number: '23456',
-                id: 2
-            },
-            {
-                name: 'Erno Hellas',
-                number: '98765',
-                id: 3
-            },
-            {
-                name: 'Maija Mäki',
-                number: '33456',
-                id: 4
-            }
-        ],
-        newName: '',
-        newNumber: '',
-        filterInput: ''
+            persons: [],
+            newName: '',
+            newNumber: '',
+            filterInput: '',
         }
+    }
+
+    componentDidMount() {
+        axios
+            .get(this.db)
+            .then(response => {
+                this.setState({ persons: response.data })
+            })
     }
 
     addEntry = (event) => {
