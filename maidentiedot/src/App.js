@@ -1,5 +1,4 @@
 import React from 'react'
-import ReactDom from 'react-dom'
 import './App.css'
 import axios from 'axios'
 import Results from './components/Results'
