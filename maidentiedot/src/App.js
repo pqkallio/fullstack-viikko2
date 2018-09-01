@@ -16,11 +16,9 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    console.log('did mount')
     axios
       .get(this.restEndpoint)
       .then(response => {
-        console.log('promise fulfilled')
         this.setState({
           countries: response.data,
           filteredCountries: response.data
@@ -39,11 +37,15 @@ class App extends React.Component {
     this.filterResults(filter)
   }
 
+  handleClickOnCountryData = (country) => {
+    this.setState({ filteredCountries: [country] })
+  }
+
   render() {
     return (
       <div>
         find countries: <input value={this.state.filterValue} onChange={this.handleFiltering} />
-        <Results results={this.state.filteredCountries} />
+        <Results results={this.state.filteredCountries} handleClick={this.handleClickOnCountryData} />
       </div>
     );
   }

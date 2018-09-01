@@ -2,7 +2,7 @@ import React from 'react'
 import CountryList from './CountryList'
 import CountryDataSheet from './CountryDataSheet'
 
-const Results = ({ results }) => {
+const Results = ({ results, handleClick }) => {
     if (results.length > 10) {
         return (
             <div>
@@ -18,7 +18,7 @@ const Results = ({ results }) => {
     } else if (results.length > 1) {
         return (
             <div>
-                <CountryList countries={results} />
+                <CountryList countries={results} handleClick={handleClick} />
             </div>
         );
     }

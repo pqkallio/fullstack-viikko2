@@ -11,6 +11,7 @@ const CountryDataSheet = ({ country }) => {
             <img 
                 src={country.flag}
                 width='400px'
+                alt={'Flag of' + country.name}
             />
         </div>
     );
