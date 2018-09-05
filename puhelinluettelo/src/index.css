@@ -4,6 +4,7 @@ body {
   font-family: sans-serif;
 }
 
-.phonebook li {
-  list-style-type: none
+.entry td {
+  text-align: left;
+  padding-right: 10px;
 }
