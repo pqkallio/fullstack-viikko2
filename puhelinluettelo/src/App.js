@@ -3,16 +3,21 @@ import Entries from './components/Entries'
 import NewEntryForm from './components/NewEntryForm';
 import Filtering from './components/Filtering';
 import personService from './services/persons'
+import Notification from './components/Notification'
 
 class App extends React.Component {
     constructor(props) {
         super(props)
         this.db = props.db
+        this.errorClassName = 'error'
+        this.notificationClassName = 'notification'
         this.state = {
             persons: [],
             newName: '',
             newNumber: '',
             filterInput: '',
+            notificationMessage: null,
+            notificationType: null
         }
     }
 
@@ -23,8 +28,20 @@ class App extends React.Component {
                 this.updatePersonsToState(persons)
             })
             .catch(error => {
-                alert('Valitettavasti henkilötietoja ei voitu listata. Yritä myöhemmin uudelleen.')
+                this.notifyUser(this.errorClassName,
+                    'Valitettavasti henkilötietoja ei voitu listata. Yritä myöhemmin uudelleen.')
             })
+    }
+
+    notifyUser = (type, message) => {
+        this.setState({
+            notificationType: type,
+            notificationMessage: message
+        })
+        setTimeout(() => this.setState({
+            notificationMessage: null,
+            notificationType: null
+        }), 5000)
     }
 
     handleAddNewPerson = (name, number) => {
@@ -37,9 +54,12 @@ class App extends React.Component {
             .then(newPerson => {
                 const persons = this.state.persons.concat(newPerson)
                 this.updatePersonsToState(persons)
+                this.notifyUser(this.notificationClassName,
+                    `${newPerson.name} lisättiin luetteloon`)
             })
             .catch(error => {
-                alert('Valitettavasti henkilöä ei voitu lisätä. Yritä myöhemmin uudelleen.')
+                this.notifyUser(this.errorClassName, 
+                    'Valitettavasti henkilöä ei voitu lisätä. Yritä myöhemmin uudelleen.')
             })
     }
 
@@ -64,7 +84,7 @@ class App extends React.Component {
     }
 
     handleUpdateNumber = (person, number) => {
-        const confirmed = window.confirm(`${person.name} on jo luettelossa, korvataanko numero?`)
+        let confirmed = window.confirm(`${person.name} on jo luettelossa, korvataanko numero?`)
 
         if (confirmed) {
             const newPerson = {...person, number}
@@ -72,9 +92,14 @@ class App extends React.Component {
                 .then(newPerson => {
                     const persons = this.state.persons.filter(p => p.id !== newPerson.id).concat(newPerson)
                     this.updatePersonsToState(persons)
+                    this.notifyUser(this.notificationClassName, `Numero päivitetty: ${newPerson.name}`)
                 })
                 .catch(error => {
-                    alert('Valitettavasti henkilön numeroa ei voitu päivittää. Yritä myöhemmin uudelleen.')
+                    this.updatePersonsToState(this.state.persons.filter(p => p.id !== newPerson.id))
+                    confirmed = window.confirm(`${person.name} tiedot on jo poistettu luettelosta, lisätäänkö henkilö?`)
+                    if (confirmed) {
+                        this.handleAddNewPerson(newPerson.name, newPerson.number)
+                    }
                 })
         }
     }
@@ -119,6 +144,11 @@ class App extends React.Component {
                 .then(response => {
                     const persons = this.state.persons.filter(p => p.id !== person.id)
                     this.updatePersonsToState(persons)
+                    this.notifyUser(this.notificationClassName, `Poistettiin tiedot: ${person.name}`)
+                })
+                .catch(error => {
+                    this.notifyUser(this.errorClassName, 
+                        'Valitettavasti tietoja ei voitu nyt poistaa. Yritä myöhemmin uudelleen.')
                 })
         }
     }
@@ -133,6 +163,7 @@ class App extends React.Component {
         return (
             <div>
                 <h2>Puhelinluettelo</h2>
+                <Notification type={this.state.notificationType} message={this.state.notificationMessage} />
                 <Filtering filterInput={filterInput} handleFiltering={this.handleFiltering} />
                 <NewEntryForm newName={this.state.newName} 
                               newNumber={this.state.newNumber}
